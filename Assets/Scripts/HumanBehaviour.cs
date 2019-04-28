@@ -4,17 +4,26 @@ using UnityEngine;
 
 public class HumanBehaviour : MonoBehaviour
 {
+    public Collider ground;
+    public float rayDist;
+    public RaycastHit res;
+    public Vector3 PICKUP_OFFSET_VECTOR;
     public int walkDirection;
     public float WALK_SPEED;
     public bool pickedUp;
     public bool onScreen;
     Rigidbody2D rbody;
     Animator anim;
+    
 
     private void Start()
     {
         rbody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+
+        ground = GameObject.FindGameObjectWithTag("Ground").GetComponent<BoxCollider>();
+        // foreach ()
+
         // walkDirection = Random.value > 0.5f ? 1 : -1;
         // Vector3 s = transform.localScale;
         // transform.localScale = new Vector3(s.x * walkDirection, s.y, s.z);
@@ -54,7 +63,13 @@ public class HumanBehaviour : MonoBehaviour
     }
 
     private void Drag() {
-        transform.position = (Vector3)(Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(-0.1f * walkDirection, -0.85f, 0);
+        Vector3 oldtransform = transform.position;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (ground.Raycast(ray, out res, rayDist))
+        {
+            transform.position = res.point + PICKUP_OFFSET_VECTOR;
+        }
+        //  = (Vector3)(Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(-0.1f * walkDirection, 0f, 0f);
         // print(transform.position);
     }
 
@@ -65,16 +80,38 @@ public class HumanBehaviour : MonoBehaviour
         transform.localScale = new Vector3(s.x * walkDirection, s.y, s.z);
     }
 
+    public void SetColour(Color colour)
+    {
+        foreach (SpriteRenderer spr in GetComponentsInChildren<SpriteRenderer>())
+        {
+            spr.color = colour;
+        }
+    }
+
     // Pick up
     private void OnMouseDown() {
+        PickUp();
+    }
+
+    private void PickUp() {
         pickedUp = true;
         anim.SetBool("pickedup", true);
+        transform.localScale *= 1.2f;
     }
 
     // Put down
     private void OnMouseUp() {
+        PutDown();
+    }
+
+    private void PutDown() {
         pickedUp = false;
         anim.SetBool("pickedup", false);
-        transform.position += new Vector3(0, -0.25f, 0);
+        transform.localScale /= 1.2f;
+    }
+
+    public void SetFeatures(HumanFeatures features)
+    {
+
     }
 }

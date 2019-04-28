@@ -54,9 +54,14 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Global.cs" />
      <Compile Include="Assets\Scripts\HumanBehaviour.cs" />
+     <Compile Include="Assets\Scripts\HumanFeatures.cs" />
      <Compile Include="Assets\Scripts\HumanGenerator.cs" />
      <Compile Include="Assets\Scripts\InputManager.cs" />
+     <Compile Include="Assets\Scripts\PanelBehaviour.cs" />
+     <Compile Include="Assets\Scripts\WantedManager.cs" />
+     <Compile Include="Assets\Scripts\WantedPanel.cs" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>/Users/vutheduc/Documents/Projects/GameDev/Mobile/Familia/FamiliaConquest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>

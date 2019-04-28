@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    private void Start() {
-        
+    public int selectedCell;
+    public void SetCellValue(int cel)
+    {
+        selectedCell = cel;
     }
-
-    private void Update() {
-        
+    
+    public void UnsetCellValue()
+    {
+        selectedCell = -1;
     }
 }
