@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Features;
 
 public class HumanBehaviour : MonoBehaviour
 {
@@ -14,10 +15,15 @@ public class HumanBehaviour : MonoBehaviour
     public bool onScreen;
     Rigidbody2D rbody;
     Animator anim;
-    
+    Transform headAnchor;
+    SpriteRenderer tempSprRndr = null;
+    HumanFeatures features;
+    Color myColour;
 
     private void Start()
     {
+        headAnchor = transform.Find("body").Find("headA");
+        // print(headAnchor);
         rbody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
@@ -67,7 +73,7 @@ public class HumanBehaviour : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (ground.Raycast(ray, out res, rayDist))
         {
-            transform.position = res.point + PICKUP_OFFSET_VECTOR;
+            transform.position = res.point + new Vector3(PICKUP_OFFSET_VECTOR.x * walkDirection, PICKUP_OFFSET_VECTOR.y, PICKUP_OFFSET_VECTOR.z);
         }
         //  = (Vector3)(Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(-0.1f * walkDirection, 0f, 0f);
         // print(transform.position);
@@ -82,36 +88,131 @@ public class HumanBehaviour : MonoBehaviour
 
     public void SetColour(Color colour)
     {
-        foreach (SpriteRenderer spr in GetComponentsInChildren<SpriteRenderer>())
-        {
-            spr.color = colour;
-        }
+        myColour = colour;
     }
 
     // Pick up
     private void OnMouseDown() {
-        PickUp();
+        if (GameManager.Instance().selected < 0)
+            PickUp();
     }
 
     private void PickUp() {
         pickedUp = true;
         anim.SetBool("pickedup", true);
         transform.localScale *= 1.2f;
+        BringFeaturesForward();
     }
 
     // Put down
     private void OnMouseUp() {
-        PutDown();
+        if (GameManager.Instance().selected >= 0)
+            GameManager.Instance().BringEmIn(features);
+        else
+            PutDown();
     }
 
     private void PutDown() {
         pickedUp = false;
         anim.SetBool("pickedup", false);
         transform.localScale /= 1.2f;
+        SendFeaturesBackward();
     }
 
-    public void SetFeatures(HumanFeatures features)
+    public void SetFeatures(HumanFeatures feat)
     {
+        this.features = feat;
+        StartCoroutine("CreateFeatures");
+    }
+    
+    private IEnumerator CreateFeatures()
+    {
+        yield return new WaitForSeconds(0.1f);
+        MakeFeatures();
+        SetMyColour();
+        yield return null;
+    }
+    void MakeFeatures(){
+        
+        GameManager gman = GameManager.Instance();
+        
+        try {
+            string mouthVal = features.mouth.ToString();
+            Sprite mouthSpr = gman.GetSprite(mouthVal);
+            tempSprRndr = headAnchor.Find("mouthA").Find(mouthVal).gameObject.AddComponent<SpriteRenderer>() as SpriteRenderer;
+            tempSprRndr.sprite = mouthSpr;
+            tempSprRndr.sortingOrder = 3;
+        } catch {
+            ;
+        }
+        
+        try {
+            string eyesVal = features.eyes.ToString();
+            Sprite eyesSpr = gman.GetSprite(eyesVal);
+            tempSprRndr = headAnchor.Find("eyesA").Find(eyesVal).gameObject.AddComponent<SpriteRenderer>() as SpriteRenderer;
+            tempSprRndr.sprite = eyesSpr;
+            tempSprRndr.sortingOrder = 3;
+        } catch {
+            ;
+        }
 
+        try {
+            string earVal = features.ear.ToString();
+            Sprite earSpr = gman.GetSprite(earVal);
+            tempSprRndr = headAnchor.Find("earA").Find(earVal).gameObject.AddComponent<SpriteRenderer>() as SpriteRenderer;
+            tempSprRndr.sprite = earSpr;
+            tempSprRndr.sortingOrder = 3;
+        } catch {
+            ;
+        }
+
+        try {
+            string noseVal = features.nose.ToString();
+            Sprite noseSpr = gman.GetSprite(noseVal);
+            tempSprRndr = headAnchor.Find("noseA").Find(noseVal).gameObject.AddComponent<SpriteRenderer>() as SpriteRenderer;
+            tempSprRndr.sprite = noseSpr;
+            tempSprRndr.sortingOrder = 3;
+        } catch {
+            ;
+        }
+
+        try {
+            string hairVal = features.hair.ToString();
+            if (hairVal == "BALD") return;
+            Sprite hairSpr = gman.GetSprite(hairVal);
+            tempSprRndr = headAnchor.Find("hairA").Find(hairVal).gameObject.AddComponent<SpriteRenderer>() as SpriteRenderer;
+            tempSprRndr.sprite = hairSpr;
+            tempSprRndr.sortingOrder = 3;
+        } catch {
+            ;
+        }
+
+        SendFeaturesBackward();
+    }
+
+    void SetMyColour(){
+        foreach (SpriteRenderer spr in GetComponentsInChildren<SpriteRenderer>())
+        {
+            spr.color = myColour;
+        }
+    }
+
+    void BringFeaturesForward()
+    {
+        foreach (SpriteRenderer spr in GetComponentsInChildren<SpriteRenderer>())
+        {
+            if (spr.gameObject.CompareTag("Features"))
+                spr.GetComponent<SpriteRenderer>().sortingOrder = 25;
+        }
+    }
+
+    void SendFeaturesBackward()
+    {
+        foreach (SpriteRenderer spr in GetComponentsInChildren<SpriteRenderer>())
+        {
+            if (spr.gameObject.CompareTag("Features"))
+                spr.GetComponent<SpriteRenderer>().sortingOrder = 3;
+        }
     }
 }
+

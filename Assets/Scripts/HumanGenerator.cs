@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Features;
 
 public class HumanGenerator : MonoBehaviour
 {
@@ -15,12 +15,15 @@ public class HumanGenerator : MonoBehaviour
 
     [SerializeField]
     public Color[] possibleColours;
-    List<HumanFeatures> wantedList;
+    WantedManager wantedManager;
+    System.Random random;
 
     private void Start()
     {
+        random = new System.Random();
+        wantedManager = GetComponent<WantedManager>();
         StartCoroutine("GenerateHumans");
-        wantedList = FindObjectOfType<WantedManager>().WantedList;
+        
     }
 
     private IEnumerator GenerateHumans()
@@ -28,7 +31,7 @@ public class HumanGenerator : MonoBehaviour
         while (GameManager.Instance().running)
         {
             MakeNewHuman();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(TIME_BETW_HUMANS);
         }
         yield return null;
     }
@@ -48,22 +51,23 @@ public class HumanGenerator : MonoBehaviour
         HumanBehaviour hb = human.GetComponent<HumanBehaviour>();
         hb.WALK_SPEED = Random.Range(1f, 2f);
         hb.SetColour(possibleColours[color_id]);
-
+        // print(wantedManager);
         HumanFeatures hf;
-        do { hf = GenerateHumanFeatures(); }
-        while (wantedList.Contains(hf));
-
-        hb.SetFeatures(hf);
+        hf = GenerateHumanFeatures();
+        // do { hf = GenerateHumanFeatures(); }
+        // while (wantedManager.CheckContain(hf) && Random.value < 0.95f);
+        
         hb.SetDirection(Direction);
+        hb.SetFeatures(hf);
     }
 
-    HumanFeatures GenerateHumanFeatures(){
+    public HumanFeatures GenerateHumanFeatures(){
         return new HumanFeatures(
-            Global.RandomEnumValue<Mouth>(),
-            Global.RandomEnumValue<Eyes>(),
-            Global.RandomEnumValue<Hair>(),
-            Global.RandomEnumValue<Ear>(),
-            Global.RandomEnumValue<Nose>()
+            Global.RandomEnumValue<Mouth>(random),
+            Global.RandomEnumValue<Eyes>(random),
+            Global.RandomEnumValue<Hair>(random),
+            Global.RandomEnumValue<Ear>(random),
+            Global.RandomEnumValue<Nose>(random)
         );
     }
 }
